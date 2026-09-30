@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PharmaTrack-X — Prototype</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#eef3f6;--card:#fff;--ink:#0f2733;--muted:#6b8593;--line:#dde7ec;
+  --accent:#0d8f7f;--accent2:#0a6f63;--danger:#d94a4a;--warn:#e08b1f;
+  --ok:#2e9e5b;--info:#3b7ddd;--radius:14px;
+  --shadow:0 1px 2px rgba(16,42,55,.06),0 8px 24px rgba(16,42,55,.06);
+}
+body{font-family:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+.hidden{display:none!important}
+
+/* ---------- Login ---------- */
+.login-wrap{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#0d8f7f 0%,#0a4d54 100%);padding:24px}
+.login-card{background:#fff;border-radius:18px;padding:34px;width:100%;max-width:400px;box-shadow:0 24px 60px rgba(0,0,0,.28)}
+.brand{display:flex;gap:12px;align-items:center;margin-bottom:26px}
+.logo{width:46px;height:46px;border-radius:12px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:19px;letter-spacing:-.5px}
+.brand h1{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.brand p{font-size:11px;color:var(--muted);line-height:1.35;max-width:240px}
+label{display:block;margin-bottom:14px;font-size:12.5px;font-weight:600;color:#3c5560}
+label input,label select{display:block;width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fafcfd;font-weight:500;outline:none;transition:.15s}
+label input:focus,label select:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(13,143,127,.12)}
+.hint{font-size:11.5px;color:var(--muted);text-align:center;margin-top:14px}
+
+/* ---------- Buttons ---------- */
+.btn{border:none;border-radius:10px;padding:9px 15px;font-weight:700;font-size:13px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent2)}
+.btn.ghost{background:#eef4f6;color:#3c5560}
+.btn.ghost:hover{background:#e2ecef}
+.btn.ok{background:var(--ok);color:#fff}
+.btn.ok:hover{filter:brightness(.92)}
+.btn.danger{background:#fdecec;color:var(--danger)}
+.btn.danger:hover{background:#fadada}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:6px 11px;font-size:12px;border-radius:8px}
+.icon-btn{background:none;border:none;font-size:16px;color:var(--muted);cursor:pointer;padding:4px 8px;border-radius:8px}
+.icon-btn:hover{background:#eef4f6}
+
+/* ---------- Shell ---------- */
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.sidebar{background:#0c2b33;color:#c8dbe0;padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.side-brand{display:flex;gap:10px;align-items:center;padding:0 8px 18px;border-bottom:1px solid rgba(255,255,255,.09);margin-bottom:14px}
+.side-brand .logo{width:36px;height:36px;font-size:15px;border-radius:10px}
+.side-brand h1{font-size:14.5px;font-weight:800;color:#fff;letter-spacing:-.2px}
+.side-brand p{font-size:9.5px;color:#7fa3ac;text-transform:uppercase;letter-spacing:.7px}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#5f8791;padding:12px 10px 5px;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;cursor:pointer;font-size:13.2px;font-weight:600;color:#b9d2d8;transition:.13s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:var(--accent);color:#fff}
+.nav-item .ic{width:17px;text-align:center;font-size:14px}
+.nav-item .pill{margin-left:auto;background:#d94a4a;color:#fff;font-size:10px;font-weight:800;padding:1px 7px;border-radius:20px}
+.side-foot{margin-top:auto;padding:14px 10px 4px;border-top:1px solid rgba(255,255,255,.09);font-size:11px;color:#6d939c}
+
+/* ---------- Main ---------- */
+.main{padding:22px 26px 40px;max-width:1280px;width:100%}
+.topbar{display:flex;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.topbar h2{font-size:21px;font-weight:800;letter-spacing:-.4px}
+.topbar .sub{font-size:12px;color:var(--muted);font-weight:500}
+.spacer{flex:1}
+.user-chip{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:40px;padding:5px 14px 5px 5px;box-shadow:var(--shadow)}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px}
+.user-chip .nm{font-size:12.5px;font-weight:700;line-height:1.1}
+.user-chip .rl{font-size:10.5px;color:var(--muted);text-transform:capitalize}
+
+/* ---------- Cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
+.card h3{font-size:14.5px;font-weight:800;margin-bottom:3px;letter-spacing:-.2px}
+.card .card-sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:1.05fr .95fr}
+@media(max-width:1080px){.g4{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr}}
+
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+.kpi.warn::before{background:var(--warn)}.kpi.danger::before{background:var(--danger)}.kpi.info::before{background:var(--info)}
+.kpi .lbl{font-size:11.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.kpi .val{font-size:27px;font-weight:800;letter-spacing:-1px;margin:5px 0 2px}
+.kpi .foot{font-size:11.5px;color:var(--muted)}
+
+/* ---------- Table ---------- */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:8px 10px;border-bottom:1.5px solid var(--line);font-weight:800;white-space:nowrap}
+td{padding:10px;border-bottom:1px solid #eef4f6;vertical-align:middle}
+tbody tr:hover{background:#f8fbfc}
+tbody tr:last-child td{border-bottom:none}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.empty{padding:26px;text-align:center;color:var(--muted);font-size:13px}
+
+/* ---------- Badges ---------- */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap}
+.b-ok{background:#e6f6ec;color:#1f7a45}
+.b-warn{background:#fdf1e0;color:#a8610a}
+.b-danger{background:#fdecec;color:#b63030}
+.b-info{background:#e8f0fd;color:#2558a8}
+.b-muted{background:#eef4f6;color:#5b7683}
+
+/* ---------- Forms ---------- */
+.form-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:640px){.form-row{grid-template-columns:1fr}}
+.fefo-box{background:#eaf7f4;border:1px dashed #9ed4c9;border-radius:10px;padding:11px 13px;font-size:12.5px;color:#0a6f63;margin-bottom:14px;font-weight:600}
+.fefo-box b{font-weight:800}
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.search{flex:1;min-width:180px;padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:#fafcfd;outline:none}
+.search:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(13,143,127,.12)}
+
+/* ---------- Recommendation card ---------- */
+.rec{border:1px solid var(--line);border-radius:var(--radius);padding:16px;background:#fff;box-shadow:var(--shadow);margin-bottom:14px;display:grid;grid-template-columns:78px 1fr;gap:16px}
+.rec.decided{opacity:.72;background:#fbfdfd}
+.risk-ring{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(var(--c) calc(var(--p)*1%),#e6edf0 0)}
+.risk-ring::after{content:'';position:absolute;inset:7px;background:#fff;border-radius:50%}
+.risk-ring span{position:relative;z-index:1;font-weight:800;font-size:16px;letter-spacing:-.5px}
+.risk-ring small{position:absolute;bottom:6px;z-index:1;font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:800}
+.rec-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:5px}
+.rec-head h4{font-size:14.5px;font-weight:800}
+.rec-meta{font-size:12px;color:var(--muted);margin-bottom:10px}
+.factors{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:11px}
+.factor{background:#f4f8fa;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:11.5px;color:#3c5560}
+.factor b{color:var(--ink);font-weight:800}
+.explain{background:#f8fbfc;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 13px;font-size:12.5px;color:#3c5560;margin-bottom:12px;line-height:1.55}
+.rec-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* ---------- Bars ---------- */
+.bar-row{display:grid;grid-template-columns:150px 1fr 86px;gap:12px;align-items:center;margin-bottom:10px;font-size:12.5px}
+.bar-track{background:#eef4f6;border-radius:20px;height:9px;overflow:hidden}
+.bar-fill{height:100%;border-radius:20px;background:var(--accent)}
+.bar-row .amt{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+
+/* ---------- Modal ---------- */
+.modal-backdrop{position:fixed;inset:0;background:rgba(10,32,40,.5);display:grid;place-items:center;z-index:100;padding:20px;backdrop-filter:blur(2px)}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:520px;box-shadow:0 24px 60px rgba(0,0,0,.3);max-height:90vh;overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
+.modal-head h3{font-size:15px;font-weight:800}
+.modal form{padding:20px}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:8px;padding-top:16px;border-top:1px solid var(--line)}
+.invoice-line{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.invoice-line.total{border-bottom:none;border-top:2px solid var(--ink);margin-top:8px;padding-top:11px;font-weight:800;font-size:15px}
+.note{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login" class="login-wrap">
+  <form class="login-card" id="loginForm">
+    <div class="brand">
+      <div class="logo">Rx</div>
+      <div>
+        <h1>PharmaTrack-X</h1>
+        <p>Expiry-Risk &amp; Demand-Uncertainty Aware Pharmacy Inventory DSS</p>
+      </div>
+    </div>
+    <label>Email / Username
+      <input id="loginUser" value="sabika@pharmatrack.pk" required>
+    </label>
+    <label>Password
+      <input type="password" id="loginPass" value="demo1234" required>
+    </label>
+    <label>Sign in as
+      <select id="loginRole">
+        <option value="pharmacist">Pharmacist</option>
+        <option value="admin">Admin</option>
+      </select>
+    </label>
+    <button class="btn primary block" type="submit" style="margin-top:8px;padding:11px">Sign in</button>
+    <p class="hint">Prototype demo — any credentials work. JWT auth is simulated.</p>
+  </form>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="side-brand">
+      <div class="logo">Rx</div>
+      <div><h1>PharmaTrack-X</h1><p>v1.0 Prototype</p></div>
+    </div>
+    <div class="nav-label">Operations</div>
+    <button class="nav-item" data-nav="dashboard"><span class="ic">▤</span>Dashboard</button>
+    <button class="nav-item" data-nav="medicines"><span class="ic">💊</span>Medicines</button>
+    <button class="nav-item" data-nav="batches"><span class="ic">▦</span>Batches &amp; Expiry</button>
+    <button class="nav-item" data-nav="suppliers"><span class="ic">🚚</span>Suppliers</button>
+    <button class="nav-item" data-nav="purchases"><span class="ic">📥</span>Purchases</button>
+    <button class="nav-item" data-nav="sales"><span class="ic">🧾</span>Sales &amp; Billing</button>
+    <div class="nav-label">Decision Support</div>
+    <button class="nav-item" data-nav="recommendations"><span class="ic">⚠</span>Recommendations<span class="pill" id="navPill">0</span></button>
+    <button class="nav-item" data-nav="reports"><span class="ic">📊</span>Reports</button>
+    <div class="side-foot">
+      Software Engineering<br>Course Project — Group 4
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h2 id="viewName">Dashboard</h2>
+        <div class="sub" id="viewSub">Overview of stock, expiry and pending decisions</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="user-chip">
+        <div class="avatar" id="userAv">SA</div>
+        <div>
+          <div class="nm" id="userName">Sabika Abbas</div>
+          <div class="rl" id="userRole">Pharmacist</div>
+        </div>
+      </div>
+      <button class="btn ghost sm" data-action="logout">Sign out</button>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+/* =========================================================
+   0. Helpers
+   ========================================================= */
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+const DAY = 86400000;
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);x.setHours(0,0,0,0);return x;};
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const daysTo=d=>Math.round((new Date(d).setHours(0,0,0,0)-TODAY)/DAY);
+const money=n=>'Rs '+n.toLocaleString('en-PK',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money0=n=>'Rs '+Math.round(n).toLocaleString('en-PK');
+const fmtDate=s=>new Date(s).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* deterministic pseudo-random so the demo is reproducible */
+let _seed=987654321;
+const rnd=()=>{_seed=(_seed*1664525+1013904223)%4294967296;return _seed/4294967296;};
+
+/* =========================================================
+   1. Mock database
+   ========================================================= */
+const suppliers=[
+  {id:1,name:'MediLink Distributors',contact:'+92 300 1234567',lead:3,city:'Karachi'},
+  {id:2,name:'Getz Pharma Wholesale',contact:'+92 321 7654321',lead:5,city:'Lahore'},
+  {id:3,name:'Highnoon Supplies',contact:'+92 333 1112223',lead:7,city:'Islamabad'},
+  {id:4,name:'Searle Distribution Co.',contact:'+92 345 9988776',lead:2,city:'Karachi'}
+];
+
+const medicines=[
+  {id:1,name:'Panadol 500mg',   category:'Analgesic',    price:35.00,  threshold:200, supplierId:1},
+  {id:2,name:'Augmentin 625mg', category:'Antibiotic',   price:420.00, threshold:60,  supplierId:2},
+  {id:3,name:'Brufen 400mg',    category:'NSAID',        price:120.00, threshold:120, supplierId:1},
+  {id:4,name:'Ventolin Inhaler',category:'Respiratory',  price:680.00, threshold:30,  supplierId:3},
+  {id:5,name:'Glucophage 850mg',category:'Antidiabetic', price:250.00, threshold:80,  supplierId:3},
+  {id:6,name:'Risek 20mg',      category:'Antacid',      price:190.00, threshold:100, supplierId:2}
+];
+
+const batches=[
+  {id:1, medicineId:1,batchNo:'PN-2291',qty:480,expiry:iso(addDays(TODAY,40))},
+  {id:2, medicineId:1,batchNo:'PN-2318',qty:320,expiry:iso(addDays(TODAY,210))},
+  {id:3, medicineId:2,batchNo:'AU-1120',qty:90, expiry:iso(addDays(TODAY,18))},
+  {id:4, medicineId:2,batchNo:'AU-1145',qty:150,expiry:iso(addDays(TODAY,170))},
+  {id:5, medicineId:3,batchNo:'BR-0556',qty:260,expiry:iso(addDays(TODAY,75))},
+  {id:6, medicineId:4,batchNo:'VT-0912',qty:42, expiry:iso(addDays(TODAY,25))},
+  {id:7, medicineId:4,batchNo:'VT-0930',qty:20, expiry:iso(addDays(TODAY,300))},
+  {id:8, medicineId:5,batchNo:'GL-7781',qty:45, expiry:iso(addDays(TODAY,55))},
+  {id:9, medicineId:6,batchNo:'RS-3341',qty:300,expiry:iso(addDays(TODAY,12))},
+  {id:10,medicineId:6,batchNo:'RS-3390',qty:220,expiry:iso(addDays(TODAY,260))},
+  {id:11,medicineId:3,batchNo:'BR-0601',qty:280,expiry:iso(addDays(TODAY,30))}
+];
+
+const purchases=[
+  {id:1,supplierId:1,medicineId:1,batchNo:'PN-2291',qty:480,date:iso(addDays(TODAY,-52)),cost:480*28},
+  {id:2,supplierId:2,medicineId:6,batchNo:'RS-3341',qty:300,date:iso(addDays(TODAY,-64)),cost:300*152},
+  {id:3,supplierId:1,medicineId:3,batchNo:'BR-0601',qty:280,date:iso(addDays(TODAY,-31)),cost:280*96},
+  {id:4,supplierId:3,medicineId:5,batchNo:'GL-7781',qty:140,date:iso(addDays(TODAY,-48)),cost:140*205}
+];
+
+/* daily-demand profiles used to synthesise 90 days of sales history */
+const demandProfile={1:{base:14,spread:8},2:{base:3,spread:4},3:{base:5,spread:5},
+                     4:{base:1.2,spread:5},5:{base:3,spread:5},6:{base:8,spread:7}};
+
+const sales=[];
+let saleId=1;
+for(let d=90;d>=1;d--){
+  const dateStr=iso(addDays(TODAY,-d));
+  medicines.forEach(m=>{
+    const p=demandProfile[m.id];
+    const q=Math.max(0,Math.round(p.base+(rnd()-0.5)*p.spread));
+    if(q>0) sales.push({id:saleId++,medicineId:m.id,batchId:null,qty:q,date:dateStr,amount:q*m.price});
+  });
+}
+
+/* =========================================================
+   2. Domain logic  (the "decision support" engine)
+   ========================================================= */
+const totalStock = medId => batches.filter(b=>b.medicineId===medId).reduce((a,b)=>a+b.qty,0);
+const medOf      = id => medicines.find(m=>m.id===id);
+const supOfMed   = med => suppliers.find(s=>s.id===med.supplierId);
+
+/** Estimate short-term daily demand + uncertainty range from sales history */
+function estimateDemand(medId){
+  const DAYS=30;
+  const daily=new Array(DAYS).fill(0);
+  for(let i=0;i<DAYS;i++){
+    const d=iso(addDays(TODAY,-(DAYS-1-i)));
+    daily[i]=sales.filter(s=>s.medicineId===medId&&s.date===d).reduce((a,s)=>a+s.qty,0);
+  }
+  const total=daily.reduce((a,b)=>a+b,0);
+  const avg=total/DAYS;
+  const variance=daily.reduce((a,v)=>a+(v-avg)**2,0)/DAYS;
+  const sd=Math.sqrt(variance);
+  const cv=avg>0?sd/avg:1;
+  const n=daily.filter(v=>v>0).length;                 // days with actual sales
+  let confidence='Low', z=1.96;
+  if(n>=22&&cv<=0.35){confidence='High';  z=1.28;}
+  else if(n>=12&&cv<=0.8){confidence='Medium'; z=1.64;}
+  const low=Math.max(0,avg-z*sd), high=avg+z*sd;
+  return {avg,sd,cv,n,confidence,low,high,total,days:DAYS};
+}
+
+/** Expiry-risk score (0–100) for a single batch */
+function scoreBatch(batch){
+  const med=medOf(batch.medicineId);
+  const sup=supOfMed(med);
+  const est=estimateDemand(med.id);
+  const dte=Math.max(0,daysTo(batch.expiry));
+  const demandUntilExpiry=est.avg*dte;
+  const sellThrough=batch.qty>0?Math.min(demandUntilExpiry/batch.qty,1):0;
+  const leftover=Math.max(0,batch.qty-demandUntilExpiry);
+  const stock=totalStock(med.id);
+  const leadDemand=est.avg*sup.lead;
+  const afterLead=stock-leadDemand;
+
+  let risk = 60*(1-sellThrough)                       // will the batch sell out?
+           + 25*Math.max(0,Math.min(1,1-dte/90))      // how close is expiry?
+           + 15*Math.min(1,est.cv);                   // how uncertain is demand?
+  risk=Math.round(Math.max(0,Math.min(100,risk)));
+
+  let type,reason;
+  if(est.confidence==='Low'){
+    type='Review';
+    reason=`Demand history for ${med.name} is thin or erratic — only ${est.n} selling days in the last 30 and a variability of ${(est.cv*100).toFixed(0)}%, giving a wide forecast range of ${est.low.toFixed(1)}–${est.high.toFixed(1)} units/day. With ${dte} days to expiry and ${batch.qty} units in this batch, the sell-through outcome is too uncertain to automate. A pharmacist should decide manually.`;
+  } else if(afterLead < med.threshold){
+    type='Reorder';
+    reason=`Expected demand across ${sup.name}'s ${sup.lead}-day lead time is ${leadDemand.toFixed(0)} units. Current total stock is ${stock} units, leaving only ${afterLead.toFixed(0)} units after the lead time — below the safety threshold of ${med.threshold}. Placing a reorder now avoids a stock-out.`;
+  } else if(sellThrough < 0.7){
+    type='Prioritize (FEFO)';
+    reason=`This batch holds ${batch.qty} units but only ${dte} days remain before expiry. Expected demand over that window is ${demandUntilExpiry.toFixed(0)} units (${(sellThrough*100).toFixed(0)}% of the batch), leaving roughly ${leftover.toFixed(0)} units at risk of expiring. Rotate this batch to the front of the shelf under First-Expiry-First-Out.`;
+  } else {
+    type='Hold Order';
+    reason=`Expected demand over the remaining ${dte} days (${demandUntilExpiry.toFixed(0)} units) comfortably covers this batch of ${batch.qty} units, and total stock of ${stock} units is above the safety threshold. No reorder and no FEFO action needed — continue normal rotation.`;
+  }
+
+  return {batch,med,sup,est,dte,risk,type,reason,sellThrough,leftover,
+          demandUntilExpiry,leadDemand,stock,afterLead};
+}
+
+const RISK_WINDOW=180; // only batches expiring within 180 days are scored
+function getRecommendations(){
+  return batches
+    .filter(b=>b.qty>0 && daysTo(b.expiry)<=RISK_WINDOW)
+    .map(scoreBatch)
+    .sort((a,b)=>b.risk-a.risk);
+}
+
+const decisions={};   // batchId -> {status, by, role, date}
+const auditLog=[];
+
+/* =========================================================
+   3. App state + shell
+   ========================================================= */
+const state={user:null,role:'pharmacist',view:'dashboard',search:'',
+             saleMed:1,purchaseMed:1,purchaseSup:1,reportRange:30};
+
+const TITLES={
+  dashboard:['Dashboard','Overview of stock, expiry exposure and pending decisions'],
+  medicines:['Medicines','Master list of medicines, prices and reorder thresholds'],
+  batches:['Batches & Expiry','Every batch with quantity, expiry date and days remaining'],
+  suppliers:['Suppliers','Vendors and their delivery lead times'],
+  purchases:['Purchases','Record incoming stock and link batches to suppliers'],
+  sales:['Sales & Billing','Record sales (FEFO-guided) and generate invoices'],
+  recommendations:['Expiry-Risk Recommendations','Explainable decision support — pharmacist approval required'],
+  reports:['Reports','Sales and stock summaries over a selectable period']
+};
+
+function login(role){
+  state.role=role;
+  state.user=role==='admin'
+    ? {name:'Bushra Khalid',initials:'BK'}
+    : {name:'Sabika Abbas',initials:'SA'};
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('userName').textContent=state.user.name;
+  document.getElementById('userRole').textContent=role;
+  document.getElementById('userAv').textContent=state.user.initials;
+  state.view='dashboard';
+  render();
+}
+
+function render(){
+  const [t,s]=TITLES[state.view];
+  document.getElementById('viewName').textContent=t;
+  document.getElementById('viewSub').textContent=s;
+  document.querySelectorAll('.nav-item').forEach(n=>
+    n.classList.toggle('active',n.dataset.nav===state.view));
+  const pending=getRecommendations().filter(r=>!decisions[r.batch.id]).length;
+  const pill=document.getElementById('navPill');
+  pill.textContent=pending; pill.style.display=pending?'inline-block':'none';
+  document.getElementById('view').innerHTML=VIEWS[state.view]();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* =========================================================
+   4. Views
+   ========================================================= */
+const VIEWS={};
+
+/* ---------- 4.1 Dashboard ---------- */
+VIEWS.dashboard=()=>{
+  const nearExpiry=batches.filter(b=>b.qty>0&&daysTo(b.expiry)<=90)
+                          .sort((a,b)=>daysTo(a.expiry)-daysTo(b.expiry));
+  const lowStock=medicines.filter(m=>totalStock(m.id)<m.threshold);
+  const recs=getRecommendations();
+  const pending=recs.filter(r=>!decisions[r.batch.id]);
+  const valueAtRisk=nearExpiry.reduce((a,b)=>a+b.qty*medOf(b.medicineId).price,0);
+
+  const kpi=(cls,lbl,val,foot)=>`<div class="kpi ${cls}">
+      <div class="lbl">${lbl}</div><div class="val">${val}</div><div class="foot">${foot}</div></div>`;
+
+  return `
+  <div class="grid g4" style="margin-bottom:18px">
+    ${kpi('','Medicines tracked',medicines.length,`${batches.length} batches on record`)}
+    ${kpi('warn','Batches expiring ≤ 90d',nearExpiry.length,`${money0(valueAtRisk)} stock value exposed`)}
+    ${kpi('danger','Low-stock items',lowStock.length,'Below configured reorder threshold')}
+    ${kpi('info','Pending decisions',pending.length,'Awaiting pharmacist approval')}
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Batches approaching expiry</h3>
+      <div class="card-sub">Sorted by days remaining — FEFO rotation candidates</div>
+      <table>
+        <thead><tr><th>Medicine</th><th>Batch</th><th class="num">Qty</th><th>Expiry</th><th class="num">Days</th><th>Status</th></tr></thead>
+        <tbody>
+          ${nearExpiry.slice(0,7).map(b=>{
+            const d=daysTo(b.expiry); const m=medOf(b.medicineId);
+            const cls=d<=30?'b-danger':d<=60?'b-warn':'b-muted';
+            return `<tr>
+              <td><b>${esc(m.name)}</b></td><td>${b.batchNo}</td>
+              <td class="num">${b.qty}</td><td>${fmtDate(b.expiry)}</td>
+              <td class="num">${d}</td>
+              <td><span class="badge ${cls}">${d<=30?'Critical':d<=60?'Warning':'Watch'}</span></td>
+            </tr>`;}).join('') || '<tr><td colspan="6" class="empty">No batches expiring within 90 days.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <div class="card">
+        <h3>Low-stock alerts</h3>
+        <div class="card-sub">Total quantity below threshold</div>
+        <table>
+          <thead><tr><th>Medicine</th><th class="num">Stock</th><th class="num">Threshold</th><th>Supplier lead</th></tr></thead>
+          <tbody>
+            ${lowStock.map(m=>`<tr>
+              <td><b>${esc(m.name)}</b></td>
+              <td class="num" style="color:var(--danger);font-weight:800">${totalStock(m.id)}</td>
+              <td class="num">${m.threshold}</td>
+              <td>${supOfMed(m).lead} days</td></tr>`).join('')
+              || '<tr><td colspan="4" class="empty">All medicines are above threshold.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Top recommendation right now</h3>
+        <div class="card-sub">Highest expiry-risk batch</div>
+        ${recs.length?(()=>{const r=recs[0];
+          return `<div style="display:flex;gap:14px;align-items:center">
+            <div class="risk-ring" style="--p:${r.risk};--c:${riskColor(r.risk)}"><span>${r.risk}</span></div>
+            <div>
+              <div style="font-weight:800">${esc(r.med.name)} — batch ${r.batch.batchNo}</div>
+              <div style="font-size:12.5px;color:var(--muted);margin:3px 0 7px">
+                ${r.batch.qty} units · expires in ${r.dte} days · lead time ${r.sup.lead} days</div>
+              <span class="badge ${badgeOf(r.type)}">${r.type}</span>
+            </div></div>
+          <div class="note">Open <b>Recommendations</b> to review the full explanation and approve or reject.</div>`;
+        })():'<div class="empty">Nothing to review.</div>'}
+      </div>
+    </div>
+  </div>`;
+};
+
+/* ---------- 4.2 Medicines ---------- */
+VIEWS.medicines=()=>{
+  const q=state.search.toLowerCase();
+  const list=medicines.filter(m=>m.name.toLowerCase().includes(q)||m.category.toLowerCase().includes(q));
+  return `
+  <div class="card">
+    <div class="toolbar">
+      <input class="search" placeholder="Search medicines by name or category…" data-change="search" value="${esc(state.search)}">
+      <button class="btn primary" data-action="add-medicine">+ Add Medicine</button>
+    </div>
+    <table>
+      <thead><tr><th>Medicine</th><th>Category</th><th class="num">Unit price</th><th class="num">Total stock</th>
+      <th class="num">Threshold</th><th>Preferred supplier</th><th>Stock status</th></tr></thead>
+      <tbody>
+      ${list.map(m=>{
+        const s=totalStock(m.id);
+        const st=s<m.threshold?'<span class="badge b-danger">Low</span>'
+                :s<m.threshold*1.5?'<span class="badge b-warn">Watch</span>'
+                :'<span class="badge b-ok">Healthy</span>';
+        return `<tr>
+          <td><b>${esc(m.name)}</b></td>
+          <td><span class="badge b-muted">${esc(m.category)}</span></td>
+          <td class="num">${money(m.price)}</td>
+          <td class="num"><b>${s}</b></td>
+          <td class="num">${m.threshold}</td>
+          <td>${esc(supOfMed(m).name)}</td>
+          <td>${st}</td></tr>`;}).join('')
+        ||'<tr><td colspan="7" class="empty">No medicines match your search.</td></tr>'}
+      </tbody>
+    </table>
+  </div>`;
+};
+
+/* ---------- 4.3 Batches ---------- */
+VIEWS.batches=()=>{
+  const q=state.search.toLowerCase();
+  const list=[...batches].filter(b=>medOf(b.medicineId).name.toLowerCase().includes(q)||b.batchNo.toLowerCase().includes(q))
+                         .sort((a,b)=>daysTo(a.expiry)-daysTo(b.expiry));
+  return `
+  <div class="card">
+    <div class="toolbar">
+      <input class="search" placeholder="Search by medicine or batch number…" data-change="search" value="${esc(state.search)}">
+      <span class="badge b-muted">FEFO order — earliest expiry first</span>
+    </div>
+    <table>
+      <thead><tr><th>Medicine</th><th>Batch no.</th><th class="num">Quantity</th><th>Expiry date</th>
+      <th class="num">Days left</th><th>Expiry status</th><th>Stock value</th></tr></thead>
+      <tbody>
+      ${list.map(b=>{
+        const d=daysTo(b.expiry),m=medOf(b.medicineId);
+        const cls=d<=0?'b-danger':d<=30?'b-danger':d<=90?'b-warn':'b-ok';
+        const txt=d<=0?'Expired':d<=30?'Critical':d<=90?'Near expiry':'OK';
+        return `<tr>
+          <td><b>${esc(m.name)}</b></td><td>${b.batchNo}</td>
+          <td class="num">${b.qty}</td><td>${fmtDate(b.expiry)}</td>
+          <td class="num">${d}</td>
+          <td><span class="badge ${cls}">${txt}</span></td>
+          <td>${money0(b.qty*m.price)}</td></tr>`;}).join('')}
+      </tbody>
+    </table>
+  </div>`;
+};
+
+/* ---------- 4.4 Suppliers ---------- */
+VIEWS.suppliers=()=>`
+  <div class="card">
+    <div class="toolbar">
+      <span class="badge b-info">Lead time drives reorder timing</span>
+      <div class="spacer"></div>
+      <button class="btn primary" data-action="add-supplier">+ Add Supplier</button>
+    </div>
+    <table>
+      <thead><tr><th>Supplier</th><th>Contact</th><th>City</th><th class="num">Lead time</th><th>Supplies</th></tr></thead>
+      <tbody>
+      ${suppliers.map(s=>`<tr>
+        <td><b>${esc(s.name)}</b></td><td>${esc(s.contact)}</td><td>${esc(s.city)}</td>
+        <td class="num"><span class="badge b-info">${s.lead} days</span></td>
+        <td style="font-size:12.5px;color:var(--muted)">${medicines.filter(m=>m.supplierId===s.id).map(m=>esc(m.name)).join(', ')||'—'}</td>
+      </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+
+/* ---------- 4.5 Purchases ---------- */
+VIEWS.purchases=()=>{
+  const med=medOf(+state.purchaseMed)||medicines[0];
+  return `
+  <div class="grid g2">
+    <div class="card">
+      <h3>Record a purchase</h3>
+      <div class="card-sub">Incoming stock is stored as a new batch linked to its supplier</div>
+      <div class="form-row">
+        <label>Supplier
+          <select data-change="purchase-sup">
+            ${suppliers.map(s=>`<option value="${s.id}" ${s.id==state.purchaseSup?'selected':''}>${esc(s.name)} (${s.lead}d lead)</option>`).join('')}
+          </select>
+        </label>
+        <label>Medicine
+          <select data-change="purchase-med">
+            ${medicines.map(m=>`<option value="${m.id}" ${m.id==state.purchaseMed?'selected':''}>${esc(m.name)}</option>`).join('')}
+          </select>
+        </label>
+        <label>Batch number
+          <input id="pBatch" placeholder="e.g. PN-2401">
+        </label>
+        <label>Quantity
+          <input id="pQty" type="number" min="1" value="200">
+        </label>
+        <label>Expiry date
+          <input id="pExp" type="date" value="${iso(addDays(TODAY,365))}">
+        </label>
+        <label>Unit cost (Rs)
+          <input id="pCost" type="number" step="0.01" value="${(med.price*0.8).toFixed(2)}">
+        </label>
+      </div>
+      <button class="btn primary block" style="margin-top:6px" data-action="record-purchase">Record Purchase</button>
+      <div class="note">Batch number and expiry date are mandatory — they drive the expiry-risk engine.</div>
+    </div>
+
+    <div class="card">
+      <h3>Recent purchase records</h3>
+      <div class="card-sub">${purchases.length} transactions</div>
+      <table>
+        <thead><tr><th>Date</th><th>Medicine</th><th>Batch</th><th class="num">Qty</th><th>Supplier</th></tr></thead>
+        <tbody>
+        ${[...purchases].reverse().slice(0,10).map(p=>`<tr>
+          <td>${fmtDate(p.date)}</td>
+          <td><b>${esc(medOf(p.medicineId).name)}</b></td>
+          <td>${p.batchNo}</td>
+          <td class="num">${p.qty}</td>
+          <td style="font-size:12px">${esc(suppliers.find(s=>s.id===p.supplierId).name)}</td>
+        </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+};
+
+/* ---------- 4.6 Sales & Billing ---------- */
+VIEWS.sales=()=>{
+  const med=medOf(+state.saleMed)||medicines[0];
+  const fefo=batches.filter(b=>b.medicineId===med.id&&b.qty>0).sort((a,b)=>daysTo(a.expiry)-daysTo(b.expiry))[0];
+  const recent=[...sales].slice(-8).reverse();
+  const todayTotal=sales.filter(s=>s.date===iso(TODAY)).reduce((a,s)=>a+s.amount,0);
+
+  return `
+  <div class="grid g2">
+    <div class="card">
+      <h3>New sale</h3>
+      <div class="card-sub">The system suggests the FEFO batch automatically</div>
+      <label>Medicine
+        <select data-change="sale-med">
+          ${medicines.map(m=>`<option value="${m.id}" ${m.id==state.saleMed?'selected':''}>${esc(m.name)} — ${money(m.price)}</option>`).join('')}
+        </select>
+      </label>
+      <div class="fefo-box">
+        ${fefo
+          ? `FEFO suggests batch <b>${fefo.batchNo}</b> — expires <b>${fmtDate(fefo.expiry)}</b> (${daysTo(fefo.expiry)} days left), <b>${fefo.qty}</b> units available.`
+          : `No stock available for this medicine. Record a purchase first.`}
+      </div>
+      <label>Quantity
+        <input id="sQty" type="number" min="1" value="1" max="${fefo?fefo.qty:0}">
+      </label>
+      <button class="btn primary block" data-action="record-sale" ${fefo?'':'disabled'}>
+        Record Sale &amp; Generate Invoice
+      </button>
+      <div class="note">Recording a sale reduces the FEFO batch quantity and feeds the demand-estimation model.</div>
+    </div>
+
+    <div class="card">
+      <h3>Recent sales</h3>
+      <div class="card-sub">Today's revenue: <b>${money(todayTotal)}</b></div>
+      <table>
+        <thead><tr><th>Date</th><th>Medicine</th><th class="num">Qty</th><th class="num">Amount</th></tr></thead>
+        <tbody>
+        ${recent.map(s=>`<tr>
+          <td>${fmtDate(s.date)}</td>
+          <td><b>${esc(medOf(s.medicineId).name)}</b></td>
+          <td class="num">${s.qty}</td>
+          <td class="num">${money(s.amount)}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+};
+
+/* ---------- 4.7 Recommendations ---------- */
+VIEWS.recommendations=()=>{
+  const recs=getRecommendations();
+  const canDecide=state.role==='pharmacist';
+
+  const cards=recs.map(r=>{
+    const dec=decisions[r.batch.id];
+    const type=r.type;
+    return `<div class="rec ${dec?'decided':''}">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div class="risk-ring" style="--p:${r.risk};--c:${riskColor(r.risk)}">
+          <span>${r.risk}</span><small>RISK</small>
+        </div>
+        <div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px">
+          ${r.risk>=60?'High':r.risk>=35?'Medium':'Low'}
+        </div>
+      </div>
+
+      <div>
+        <div class="rec-head">
+          <h4>${esc(r.med.name)}</h4>
+          <span class="badge b-muted">Batch ${r.batch.batchNo}</span>
+          <span class="badge ${badgeOf(type)}">${type}</span>
+          ${dec?`<span class="badge ${dec.status==='Approved'?'b-ok':'b-danger'}">${dec.status}</span>`:''}
+        </div>
+        <div class="rec-meta">
+          ${r.batch.qty} units in batch · expires ${fmtDate(r.batch.expiry)} (${r.dte} days) ·
+          supplier ${esc(r.sup.name)} (${r.sup.lead}-day lead time)
+        </div>
+
+        <div class="factors">
+          <div class="factor">Forecast demand <b>${r.est.avg.toFixed(1)}/day</b></div>
+          <div class="factor">Range <b>${r.est.low.toFixed(1)}–${r.est.high.toFixed(1)}</b></div>
+          <div class="factor">Confidence <b>${r.est.confidence}</b></div>
+          <div class="factor">Expected sell-through <b>${(r.sellThrough*100).toFixed(0)}%</b></div>
+          <div class="factor">Likely leftover <b>${r.leftover.toFixed(0)} units</b></div>
+          <div class="factor">Stock after lead time <b>${r.afterLead.toFixed(0)} units</b></div>
+        </div>
+
+        <div class="explain"><b>Why:</b> ${r.reason}</div>
+
+        <div class="rec-actions">
+          ${dec
+            ? `<span class="badge ${dec.status==='Approved'?'b-ok':'b-danger'}">
+                 ${dec.status} by ${dec.by} (${dec.role}) · ${dec.date}</span>`
+            : canDecide
+              ? `<button class="btn ok sm" data-action="decide" data-id="${r.batch.id}" data-val="Approved">✓ Approve</button>
+                 <button class="btn danger sm" data-action="decide" data-id="${r.batch.id}" data-val="Rejected">✕ Reject</button>
+                 <span class="note" style="margin:0">No action is taken until you approve.</span>`
+              : `<span class="badge b-warn">Awaiting pharmacist approval — Admin is read-only here</span>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="card" style="background:#f7fbfa;border-color:#cfe8e3">
+    <h3>How the engine works</h3>
+    <div style="font-size:12.5px;color:#3c5560;line-height:1.65">
+      For every batch expiring within ${RISK_WINDOW} days the system (1) estimates short-term daily demand from
+      historical sales together with a <b>forecast range</b> that widens when data is limited or erratic,
+      (2) combines that estimate with current stock, days-to-expiry and the supplier's lead time into a
+      <b>0–100 expiry-risk score</b>, and (3) emits one of four recommendations — <b>Reorder</b>,
+      <b>Hold Order</b>, <b>Prioritize (FEFO)</b> or <b>Review</b> — with a plain-language justification.
+      Every recommendation requires explicit pharmacist approval.
+    </div>
+  </div>
+
+  ${cards || '<div class="card"><div class="empty">No batches require attention.</div></div>'}
+
+  <div class="card" style="margin-top:20px">
+    <h3>Audit log</h3>
+    <div class="card-sub">Every recommendation decision is recorded (FR-19)</div>
+    <table>
+      <thead><tr><th>Time</th><th>Batch</th><th>Recommendation</th><th>Risk</th><th>Decision</th><th>Decided by</th></tr></thead>
+      <tbody>
+      ${auditLog.length?auditLog.map(l=>`<tr>
+        <td>${l.time}</td><td>${l.batch}</td><td>${l.type}</td><td class="num">${l.risk}</td>
+        <td><span class="badge ${l.decision==='Approved'?'b-ok':'b-danger'}">${l.decision}</span></td>
+        <td>${l.by} (${l.role})</td></tr>`).join('')
+        :'<tr><td colspan="6" class="empty">No decisions recorded yet.</td></tr>'}
+      </tbody>
+    </table>
+  </div>`;
+};
+
+/* ---------- 4.8 Reports ---------- */
+VIEWS.reports=()=>{
+  const range=+state.reportRange;
+  const from=iso(addDays(TODAY,-range+1));
+  const rows=sales.filter(s=>s.date>=from);
+  const revenue=rows.reduce((a,s)=>a+s.amount,0);
+  const units=rows.reduce((a,s)=>a+s.qty,0);
+
+  const byMed=medicines.map(m=>{
+    const r=rows.filter(s=>s.medicineId===m.id);
+    return {m,rev:r.reduce((a,s)=>a+s.amount,0),qty:r.reduce((a,s)=>a+s.qty,0)};
+  }).sort((a,b)=>b.rev-a.rev);
+  const max=Math.max(1,...byMed.map(x=>x.rev));
+
+  return `
+  <div class="card">
+    <div class="toolbar">
+      <label style="margin:0">Period
+        <select data-change="report-range" style="width:auto;display:inline-block;margin-left:8px">
+          <option value="7"  ${range===7?'selected':''}>Last 7 days</option>
+          <option value="30" ${range===30?'selected':''}>Last 30 days</option>
+          <option value="90" ${range===90?'selected':''}>Last 90 days</option>
+        </select>
+      </label>
+      <div class="spacer"></div>
+      <button class="btn ghost sm" data-action="export">⭳ Export CSV (demo)</button>
+    </div>
+    <div class="grid g3">
+      <div class="kpi"><div class="lbl">Revenue</div><div class="val">${money0(revenue)}</div><div class="foot">${from} → ${iso(TODAY)}</div></div>
+      <div class="kpi info"><div class="lbl">Units sold</div><div class="val">${units.toLocaleString()}</div><div class="foot">${rows.length} sale transactions</div></div>
+      <div class="kpi warn"><div class="lbl">Avg. daily revenue</div><div class="val">${money0(revenue/range)}</div><div class="foot">Over ${range} days</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Revenue by medicine</h3>
+    <div class="card-sub">Top movers in the selected period</div>
+    ${byMed.map(x=>`
+      <div class="bar-row">
+        <div style="font-weight:600">${esc(x.m.name)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(x.rev/max*100).toFixed(1)}%"></div></div>
+        <div class="amt">${money0(x.rev)}</div>
+      </div>`).join('')}
+  </div>
+
+  <div class="card">
+    <h3>Detailed sales summary</h3>
+    <div class="card-sub">Units sold per medicine over the period</div>
+    <table>
+      <thead><tr><th>Medicine</th><th>Category</th><th class="num">Units sold</th><th class="num">Revenue</th><th class="num">Current stock</th></tr></thead>
+      <tbody>
+      ${byMed.map(x=>`<tr>
+        <td><b>${esc(x.m.name)}</b></td>
+        <td><span class="badge b-muted">${esc(x.m.category)}</span></td>
+        <td class="num">${x.qty}</td>
+        <td class="num">${money(x.rev)}</td>
+        <td class="num">${totalStock(x.m.id)}</td></tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+};
+
+/* =========================================================
+   5. Small UI helpers
+   ========================================================= */
+function riskColor(r){return r>=60?'#d94a4a':r>=35?'#e08b1f':'#2e9e5b';}
+function badgeOf(t){
+  return t==='Reorder'?'b-danger':t==='Prioritize (FEFO)'?'b-warn':t==='Review'?'b-info':'b-muted';
+}
+
+function openModal(title,body,onSubmit){
+  const root=document.getElementById('modalRoot');
+  root.innerHTML=`<div class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-head"><h3>${title}</h3><button class="icon-btn" data-action="close-modal">✕</button></div>
+      <form id="modalForm">${body}
+        <div class="modal-foot">
+          <button type="button" class="btn ghost" data-action="close-modal">Cancel</button>
+          <button type="submit" class="btn primary">Save</button>
+        </div>
+      </form>
+    </div></div>`;
+  root.querySelector('#modalForm').addEventListener('submit',e=>{
+    e.preventDefault(); onSubmit(new FormData(e.target)); closeModal();
+  });
+}
+function closeModal(){document.getElementById('modalRoot').innerHTML='';}
+
+/* =========================================================
+   6. Event wiring
+   ========================================================= */
+document.getElementById('loginForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  login(document.getElementById('loginRole').value);
+});
+
+document.addEventListener('click',e=>{
+  const nav=e.target.closest('[data-nav]');
+  if(nav){state.view=nav.dataset.nav;state.search='';render();return;}
+
+  const t=e.target.closest('[data-action]');
+  if(!t)return;
+  const a=t.dataset.action;
+
+  if(a==='close-modal'){closeModal();}
+
+  if(a==='logout'){
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('login').classList.remove('hidden');
+  }
+
+  /* ---- add medicine ---- */
+  if(a==='add-medicine'){
+    openModal('Add medicine',`
+      <div class="form-row">
+        <label>Name<input name="name" required placeholder="e.g. Calpol 120mg"></label>
+        <label>Category<input name="category" required placeholder="e.g. Analgesic"></label>
+        <label>Unit price (Rs)<input name="price" type="number" step="0.01" required value="100"></label>
+        <label>Reorder threshold<input name="threshold" type="number" required value="100"></label>
+        <label>Preferred supplier<select name="supplierId">
+          ${suppliers.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}
+        </select></label>
+      </div>`,
+      fd=>{
+        medicines.push({
+          id:Math.max(...medicines.map(m=>m.id))+1,
+          name:fd.get('name'),category:fd.get('category'),
+          price:+fd.get('price'),threshold:+fd.get('threshold'),
+          supplierId:+fd.get('supplierId')
+        });
+        render();
+      });
+  }
+
+  /* ---- add supplier ---- */
+  if(a==='add-supplier'){
+    openModal('Add supplier',`
+      <div class="form-row">
+        <label>Supplier name<input name="name" required placeholder="e.g. PharmEvo Pvt Ltd"></label>
+        <label>Contact<input name="contact" placeholder="+92 3xx xxxxxxx"></label>
+        <label>City<input name="city" placeholder="Karachi"></label>
+        <label>Lead time (days)<input name="lead" type="number" min="1" required value="4"></label>
+      </div>
+      <div class="note">Lead time is used by the risk engine to decide when a reorder must be placed.</div>`,
+      fd=>{
+        suppliers.push({id:Math.max(...suppliers.map(s=>s.id))+1,
+          name:fd.get('name'),contact:fd.get('contact'),city:fd.get('city'),lead:+fd.get('lead')});
+        render();
+      });
+  }
+
+  /* ---- record purchase ---- */
+  if(a==='record-purchase'){
+    const batchNo=(document.getElementById('pBatch').value||'').trim();
+    const qty=+document.getElementById('pQty').value;
+    const exp=document.getElementById('pExp').value;
+    const cost=+document.getElementById('pCost').value;
+    if(!batchNo||!qty||!exp){alert('Batch number, quantity and expiry date are required.');return;}
+    const mid=+state.purchaseMed, sid=+state.purchaseSup;
+    let b=batches.find(x=>x.batchNo===batchNo&&x.medicineId===mid);
+    if(b){b.qty+=qty;} else {
+      b={id:Math.max(...batches.map(x=>x.id))+1,medicineId:mid,batchNo,qty,expiry:exp};
+      batches.push(b);
+    }
+    purchases.push({id:purchases.length+1,supplierId:sid,medicineId:mid,batchNo,qty,
+                    date:iso(TODAY),cost:qty*cost});
+    alert(`Purchase recorded.\n\nBatch ${batchNo} · ${qty} units · expires ${fmtDate(exp)}\nSupplier lead time: ${suppliers.find(s=>s.id===sid).lead} days`);
+    render();
+  }
+
+  /* ---- record sale (FEFO) ---- */
+  if(a==='record-sale'){
+    const mid=+state.saleMed;
+    const med=medOf(mid);
+    const fefo=batches.filter(b=>b.medicineId===mid&&b.qty>0).sort((x,y)=>daysTo(x.expiry)-daysTo(y.expiry))[0];
+    const qty=+document.getElementById('sQty').value;
+    if(!fefo){alert('No stock available.');return;}
+    if(qty<1||qty>fefo.qty){alert(`Quantity must be between 1 and ${fefo.qty}.`);return;}
+
+    fefo.qty-=qty;
+    const amount=qty*med.price;
+    sales.push({id:saleId++,medicineId:mid,batchId:fefo.id,qty,date:iso(TODAY),amount});
+
+    const inv=Math.floor(100000+Math.random()*899999);
+    openModal('Invoice #INV-'+inv,`
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-weight:800;font-size:16px">PharmaTrack-X Pharmacy</div>
+        <div style="font-size:11.5px;color:var(--muted)">Invoice #INV-${inv} · ${fmtDate(iso(TODAY))}</div>
+      </div>
+      <div class="invoice-line"><span>${esc(med.name)} <span style="color:var(--muted)">(batch ${fefo.batchNo})</span></span><span>${qty} × ${money(med.price)}</span></div>
+      <div class="invoice-line"><span>Subtotal</span><span>${money(amount)}</span></div>
+      <div class="invoice-line"><span>Tax (0%)</span><span>${money(0)}</span></div>
+      <div class="invoice-line total"><span>Total payable</span><span>${money(amount)}</span></div>
+      <div class="note">FEFO batch selected automatically (earliest expiry). Batch ${fefo.batchNo} now holds ${fefo.qty} units.</div>`,
+      ()=>{});
+    render();
+  }
+
+  /* ---- approve / reject a recommendation ---- */
+  if(a==='decide'){
+    if(state.role!=='pharmacist'){alert('Only a Pharmacist can approve recommendations.');return;}
+    const id=+t.dataset.id, val=t.dataset.val;
+    const r=getRecommendations().find(x=>x.batch.id===id);
+    decisions[id]={status:val,by:state.user.name,role:state.role,
+                   date:new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
+    auditLog.unshift({time:new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}),
+                      batch:r.batch.batchNo,type:r.type,risk:r.risk,decision:val,
+                      by:state.user.name,role:state.role});
+    render();
+  }
+
+  if(a==='export'){alert('Demo prototype — CSV export would be generated by the reporting module here.');}
+});
+
+document.addEventListener('change',e=>{
+  const t=e.target.closest('[data-change]');
+  if(!t)return;
+  const k=t.dataset.change;
+  if(k==='search'){state.search=t.value;render();
+    const s=document.querySelector('.search'); if(s){s.focus();s.setSelectionRange(s.value.length,s.value.length);}}
+  if(k==='sale-med'){state.saleMed=+t.value;render();}
+  if(k==='purchase-med'){state.purchaseMed=+t.value;render();}
+  if(k==='purchase-sup'){state.purchaseSup=+t.value;render();}
+  if(k==='report-range'){state.reportRange=+t.value;render();}
+});
+
+/* seed a couple of historic decisions so the audit log isn't empty */
+(function seedAudit(){
+  const b=batches.find(x=>x.id===1);
+  auditLog.push({time:'Yesterday 17:42',batch:'PN-2291',type:'Hold Order',risk:16,
+                 decision:'Approved',by:'Sabika Abbas',role:'pharmacist'});
+})();
+</script>
+</body>
+</html>
